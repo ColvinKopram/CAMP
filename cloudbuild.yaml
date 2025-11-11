@@ -1,0 +1,8 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'my-service',
+      '--source', '.',
+      '--region', 'us-east4',
+      '--allow-unauthenticated'
+    ]
