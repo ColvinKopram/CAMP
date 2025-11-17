@@ -12,9 +12,7 @@ CORS(app)  # allows React to fetch from different port
 @app.route("/")
 def map_view():
     # Load pre-sampled CSV
-    file_location = (
-        r"C:\Users\Mohammed Al-Muqsit\Desktop\Repo\ctpFinal\backend\sample_df_50k.csv"
-    )
+    file_location = "sample_df_50k.csv"
 
     df = pd.read_csv(file_location)
 
