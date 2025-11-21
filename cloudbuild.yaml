@@ -6,3 +6,6 @@ steps:
       '--region', 'us-east4',
       '--allow-unauthenticated'
     ]
+serviceAccount: camp-477922@appspot.gserviceaccount.com
+options:
+  logging: CLOUD_LOGGING_ONLY
