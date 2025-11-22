@@ -1,6 +1,2 @@
 runtime: python39
 entrypoint: gunicorn -b :$PORT backend.app:app
-
-options:
-  env:
-    - GOOGLE_ENTRYPOINT = backend/app.py
