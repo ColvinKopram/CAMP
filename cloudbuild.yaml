@@ -13,7 +13,6 @@ steps:
       '--allow-unauthenticated',
       '--set-traffic', 'latest=100'
     ]
-
 serviceAccount: camp-477922@appspot.gserviceaccount.com
 options:
   logging: CLOUD_LOGGING_ONLY
