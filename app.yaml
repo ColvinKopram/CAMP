@@ -1,6 +1,0 @@
-runtime: python
-entrypoint: gunicorn -b :$PORT main:app --timeout 120
-
-resources:
-  cpu: 1
-  memory_gb: 2

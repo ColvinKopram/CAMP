@@ -9,16 +9,11 @@ import os
 app = Flask(__name__)
 CORS(app)  # allows React to fetch from different port
 
+file_location = os.path.join(os.path.dirname(__file__), "backend", "sample_df_50k.csv")
+print("CSV exists?", os.path.exists(file_location))
 
 @app.route("/")
 def map_view():
-    # Load pre-sampled CSV
-    file_location = os.path.join(os.path.dirname(__file__), "backend", "sample_df_50k.csv")
-    
-    try:
-        df = pd.read_csv(file_location)
-    except FileNotFoundError:
-        return "<h1>Error: CSV file not found</h1>", 500
         
 
     # Initialize map

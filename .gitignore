@@ -13,3 +13,6 @@ build/
 # IDE files
 .vscode/
 .idea/
+
+#including the csv
+!backend/sample_df_50k.csv
