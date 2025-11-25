@@ -11,7 +11,6 @@ steps:
     '--image', 'gcr.io/$PROJECT_ID/camp-image:$COMMIT_SHA',
     '--region', 'us-east4',
     '--allow-unauthenticated',
-    '--set-traffic', 'latest=100'
   ]
 
 serviceAccount: camp-477922@appspot.gserviceaccount.com
