@@ -9,7 +9,7 @@ import os
 app = Flask(__name__)
 CORS(app)  # allows React to fetch from different port
 
-file_location = os.path.join(os.path.dirname(__file__), "backend", "sample_df_50k.csv")
+file_location = os.path.join(os.path.dirname(__file__), "sample_df_50k.csv")
 print("CSV exists?", os.path.exists(file_location))
 df = pd.read_csv(file_location)
 
