@@ -14,7 +14,6 @@ steps:
     '--service-account', 'camp-477922@appspot.gserviceaccount.com'
   ]
 
-steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$PROJECT_ID/backend-image:$COMMIT_SHA', '-f', 'backend/Dockerfile.backend', 'backend']
 
