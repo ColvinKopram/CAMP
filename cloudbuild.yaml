@@ -11,7 +11,7 @@ steps:
     '--image', 'gcr.io/$PROJECT_ID/frontend-image:$COMMIT_SHA',
     '--region', 'us-east4',
     '--allow-unauthenticated',
-    '--serviceAccount', 'camp-477922@appspot.gserviceaccount.com'
+    '--service-account', 'camp-477922@appspot.gserviceaccount.com'
   ]
 
 steps:
@@ -27,7 +27,7 @@ steps:
     '--image', 'gcr.io/$PROJECT_ID/backend-image:$COMMIT_SHA',
     '--region', 'us-east4',
     '--allow-unauthenticated',
-    '--serviceAccount', 'camp-477922@appspot.gserviceaccount.com'
+    '--service-account', 'camp-477922@appspot.gserviceaccount.com'
   ]
 
 serviceAccount: camp-477922@appspot.gserviceaccount.com
