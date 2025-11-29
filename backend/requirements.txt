@@ -4,3 +4,4 @@ flask-cors==6.0.1
 folium==0.20.0
 pandas==2.3.3
 geopandas
+shapely

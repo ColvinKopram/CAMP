@@ -30,7 +30,7 @@ export default function Maps() {
             </select>
 
             <iframe
-            src={`"https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}"`}
+            src={`https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}`}
             style={{ width: "100%", height: "1000px", border: "none" }}
             title="NYC Crime Map"
             />

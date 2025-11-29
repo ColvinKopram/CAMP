@@ -1,5 +1,5 @@
 # backend/app.py
-from flask import Flask
+from flask import Flask , request
 import geopandas as gpd
 import folium
 import pandas as pd
@@ -17,6 +17,11 @@ file_location = os.path.join(os.path.dirname(__file__), "sample_df_50k.csv")
 print("CSV exists?", os.path.exists(file_location))
 df = pd.read_csv(file_location)
 shapes_gdf = gpd.read_file("nyc_nta_2020.geojson")
+
+@app.route("/")
+def index():
+    m = Map(location=(40.7128, -74.0060), zoom_start=10, tiles="CartoDB dark_matter")
+    return m._repr_html_()
 
 @app.route("/maps/heatmap")
 def crime_heatmap():
