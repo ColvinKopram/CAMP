@@ -6,6 +6,7 @@ import random
 import string
 from math import radians, cos, sin, asin, sqrt
 import time
+import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key"
@@ -20,23 +21,55 @@ socketio = SocketIO(
     ping_interval=25,
 )
 
-# Load crime data
+CHUNKS_FOLDER = r"C:\Users\Mohammed Al-Muqsit\Desktop\Repo\ctpFinal\backend\csv_chunks"
 try:
-    CSV_PATH = (
-        r"C:\Users\Mohammed Al-Muqsit\Desktop\Repo\ctpFinal\backend\sample_df_50k.csv"
+    # Get a sorted list of all CSV chunk files
+    chunk_files = sorted(
+        [
+            os.path.join(CHUNKS_FOLDER, f)
+            for f in os.listdir(CHUNKS_FOLDER)
+            if f.endswith(".csv")
+        ]
     )
-    df = pd.read_csv(CSV_PATH)
-    print(f"✓ Loaded {len(df)} crime records")
+
+    # Read all chunks and concatenate
+    df_list = [pd.read_csv(f) for f in chunk_files]
+    df = pd.concat(
+        df_list, ignore_index=True
+    )  # ignore_index=True resets the row numbers
+    print(f"✓ Loaded {len(df)} crime records from {len(df_list)} chunks")
+
 except Exception as e:
-    print(f"✗ ERROR loading CSV: {e}")
+    print(f"✗ ERROR loading CSV chunks: {e}")
     df = None
 
 # Game state
 games = {}
 
 # Config
-GOOGLE_MAPS_API_KEY = None  # Replace with your key later  # Replace with your key later
+GOOGLE_MAPS_API_KEY = "AIzaSyAtX-iZgPCjwV8cPFKYRLcbVPz0hDrSBSE"  # Replace with your API key  # Replace with your API key
 MAX_ROUNDS = 3
+
+# Crime type keywords (from your friend's code)
+shooting_keywords = ["SHOT SPOTTER", "SHOTS", "FIREARM"]
+robbery_keywords = ["ROBBERY"]
+burglary_keywords = ["BURGLARY"]
+harassment_keywords = ["HARASSMENT", "VIOL ORDER PROTECT", "DOMESTIC", "FAMILY"]
+drug_keywords = ["NARCO", "MARIJUANA"]
+vandalism_keywords = ["CRIM MISCHIEF", "TRESPASS", "GRAFF"]
+
+# Crime colors for frontend chart
+CRIME_COLORS = {
+    "Shooting": "#EF553B",
+    "Robbery": "#636EFA",
+    "Burglary": "#AB63FA",
+    "Theft (non vehicle)": "#FECB52",
+    "Vehicle theft": "#FFA15A",
+    "Assault": "#00CC96",
+    "Harassment": "#19D3F3",
+    "Drug": "#FF6692",
+    "Vandalism": "#B6E880",
+}
 
 
 # Utility functions
@@ -53,31 +86,159 @@ def haversine_distance(lat1, lon1, lat2, lon2):
 
 
 def calculate_score(distance_km):
-    if distance_km < 0.1:
-        return 5000
-    elif distance_km < 1:
-        return int(5000 * (1 - distance_km))
-    elif distance_km < 10:
-        return int(3000 * (1 - distance_km / 10))
-    elif distance_km < 50:
-        return int(1000 * (1 - distance_km / 50))
-    else:
+    if distance_km > 50:
         return 0
+    return int(1000 * (1 - distance_km / 50))
+    # if distance_km < 0.1:
+    #     return 5000
+    # elif distance_km < 1:
+    #     return int(5000 * (1 - distance_km))
+    # elif distance_km < 10:
+    #     return int(3000 * (1 - distance_km / 10))
+    # elif distance_km < 50:
+    #     return int(1000 * (1 - distance_km / 50))
+    # else:
+    #     return 0
+
+
+def get_zip_crime_counts(zip_code):
+    """
+    Count crimes by type for a given ZIP code.
+    Returns a list of dictionaries for the bar chart.
+    """
+    if df is None or df.empty:
+        return []
+
+    # Filter to this ZIP code
+    sub = df[df["ZIPCODE"] == zip_code]
+
+    if sub.empty:
+        print(f"⚠️ No crimes found for ZIP {zip_code}")
+        return []
+
+    # Count each crime type (from your friend's logic)
+    shooting = (
+        sub["TYP_DESC"]
+        .str.contains("|".join(shooting_keywords), case=False, na=False)
+        .sum()
+    )
+    robbery = (
+        sub["TYP_DESC"]
+        .str.contains("|".join(robbery_keywords), case=False, na=False)
+        .sum()
+    )
+    burglary = (
+        sub["TYP_DESC"]
+        .str.contains("|".join(burglary_keywords), case=False, na=False)
+        .sum()
+    )
+
+    theft_non_vehicle = (
+        sub["TYP_DESC"].str.contains("LARCENY", case=False, na=False)
+        & ~sub["TYP_DESC"].str.contains("VEHICLE", case=False, na=False)
+    ).sum()
+
+    vehicle_theft = (
+        sub["TYP_DESC"].str.contains("LARCENY", case=False, na=False)
+        & sub["TYP_DESC"].str.contains("VEHICLE", case=False, na=False)
+    ).sum()
+
+    assault = sub["TYP_DESC"].str.contains("ASSAULT", case=False, na=False).sum()
+
+    harassment = (
+        sub["TYP_DESC"].str.contains(
+            "|".join(harassment_keywords), case=False, na=False
+        )
+        & ~sub["TYP_DESC"].str.contains("ASSAULT", case=False, na=False)
+    ).sum()
+
+    drug = (
+        sub["TYP_DESC"]
+        .str.contains("|".join(drug_keywords), case=False, na=False)
+        .sum()
+    )
+
+    vandalism = (
+        sub["TYP_DESC"].str.contains("|".join(vandalism_keywords), case=False, na=False)
+        & ~sub["TYP_DESC"].str.contains("ASSAULT", case=False, na=False)
+        & ~sub["TYP_DESC"].str.contains("HARASSMENT", case=False, na=False)
+    ).sum()
+
+    # Build the data structure for frontend
+    crime_data = [
+        {
+            "crime_type": "Shooting",
+            "count": int(shooting),
+            "color": CRIME_COLORS["Shooting"],
+        },
+        {
+            "crime_type": "Robbery",
+            "count": int(robbery),
+            "color": CRIME_COLORS["Robbery"],
+        },
+        {
+            "crime_type": "Burglary",
+            "count": int(burglary),
+            "color": CRIME_COLORS["Burglary"],
+        },
+        {
+            "crime_type": "Theft (non vehicle)",
+            "count": int(theft_non_vehicle),
+            "color": CRIME_COLORS["Theft (non vehicle)"],
+        },
+        {
+            "crime_type": "Vehicle theft",
+            "count": int(vehicle_theft),
+            "color": CRIME_COLORS["Vehicle theft"],
+        },
+        {
+            "crime_type": "Assault",
+            "count": int(assault),
+            "color": CRIME_COLORS["Assault"],
+        },
+        {
+            "crime_type": "Harassment",
+            "count": int(harassment),
+            "color": CRIME_COLORS["Harassment"],
+        },
+        {"crime_type": "Drug", "count": int(drug), "color": CRIME_COLORS["Drug"]},
+        {
+            "crime_type": "Vandalism",
+            "count": int(vandalism),
+            "color": CRIME_COLORS["Vandalism"],
+        },
+    ]
+
+    # Filter out zero counts
+    crime_data = [c for c in crime_data if c["count"] > 0]
+
+    print(f"✓ ZIP {zip_code} has {len(crime_data)} crime types with data")
+    return crime_data
 
 
 def get_random_location():
+    """Get a random crime location with ZIP code crime statistics"""
     if df is None or df.empty:
         return None
 
     row = df.sample(n=1).iloc[0]
+
+    # Get ZIP code and crime stats
+    zip_code = row["ZIPCODE"]
+    crime_stats = get_zip_crime_counts(zip_code)
+
+    # Generate Street View URL if API key exists
     if GOOGLE_MAPS_API_KEY:
         street_view_url = f"https://maps.googleapis.com/maps/api/streetview?size=600x400&location={row['Latitude']},{row['Longitude']}&key={GOOGLE_MAPS_API_KEY}"
     else:
-        street_view_url = ""  # Empty if no key
+        street_view_url = ""
+
     return {
         "latitude": float(row["Latitude"]),
         "longitude": float(row["Longitude"]),
         "street_view_url": street_view_url,
+        "zip_code": str(zip_code),
+        "crime_stats": crime_stats,  # NEW: crime data for the chart
     }
 
 
@@ -125,14 +286,22 @@ def start_round(room_code):
     for p in game["players"].values():
         p["guess"] = None
 
-    print(f"✓ Round {game['current_round']} started in room {room_code}")
+    print(
+        f"✓ Round {game['current_round']} started in room {room_code} (ZIP: {location['zip_code']})"
+    )
 
     socketio.emit(
         "round_start",
         {
             "round": game["current_round"],
             "total_rounds": MAX_ROUNDS,
-            "location": {"street_view_url": location["street_view_url"]},
+            "location": {
+                "street_view_url": location["street_view_url"],
+                "zip_code": location["zip_code"],
+                "crime_stats": location[
+                    "crime_stats"
+                ],  # NEW: send crime data to frontend
+            },
             "time_limit": 30,
         },
         room=room_code,
@@ -153,31 +322,22 @@ def handle_disconnect():
 
     for room_code, game in list(games.items()):
         if sid in game["players"]:
-            # Get list of player IDs before modifying
             player_ids = list(game["players"].keys())
-
-            # Check if disconnecting player was the host (first player)
             is_host = player_ids[0] == sid if player_ids else False
-
-            # Remove the disconnected player
             del game["players"][sid]
 
             if len(game["players"]) == 0:
-                # Delete empty game
                 del games[room_code]
                 print(f"✗ Deleted empty room: {room_code}")
             elif is_host:
-                # Host left - close the entire room
                 print(f"✗ Host left room {room_code} - closing room")
                 emit(
                     "room_closed",
                     {"message": "Host left the game. Room has been closed."},
                     room=room_code,
                 )
-                # Delete the room
                 del games[room_code]
             else:
-                # Non-host player left - update remaining players
                 print(
                     f"✗ Player left room {room_code} - {len(game['players'])} player(s) remaining"
                 )
@@ -284,7 +444,6 @@ def handle_submit_guess(data):
         f"✓ Guess submitted in room {room_code} by {game['players'][player_id]['name']}"
     )
 
-    # Check if all players guessed
     if all(p["guess"] is not None for p in game["players"].values()):
         actual = game["current_location"]
         round_results = []
@@ -323,12 +482,9 @@ def handle_submit_guess(data):
 
         game["status"] = "round_end"
 
-        # Don't auto-start next round - wait for any player to click "Next Round"
-
 
 @socketio.on("ready_for_next_round")
 def handle_ready_for_next_round(data):
-    """Handle player clicking 'Next Round' button - advances immediately"""
     room_code = data.get("room_code")
     player_id = request.sid
 
@@ -341,7 +497,6 @@ def handle_ready_for_next_round(data):
 
     print(f"✓ Player {player_name} clicked next round - advancing room {room_code}")
 
-    # Start next round immediately when any player clicks
     start_round(room_code)
 
 
