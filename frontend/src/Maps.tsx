@@ -1,10 +1,39 @@
+import { useState } from "react"
+
+const categories = [
+    { label: "Assault", value: "ASSAULT" },
+    { label: "Burglary", value: "BURGLARY" },
+    { label: "Drugs", value: "DRUGS" },
+    { label: "Harassment", value: "HARRASSMENT" },
+    { label: "Robbery", value: "ROBBERY" },
+    { label: "Shooting", value: "SHOOTING" },
+    { label: "Theft", value: "THEFT" },
+    { label: "Vandalism", value: "VANDALISM" },
+    { label: "Vehicle Theft", value: "VEHICLE_THEFT" },
+]
+    
 export default function Maps() {
+    const [selected, setSelected] = useState(categories[0].value)
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-            <h2 className="text-3xl font-semibold mb-4">Criminal Activity Maps</h2>
-            <p className="text-lg max-w-xl text-center">
-                interactive crime maps...
-            </p>
+        <div className="w-screen h-screen flex flex-col">
+            <h1 className="text-4xl text-center mt-4">NYC Crime Map</h1>
+
+            <select
+                className="mt-4 mx-auto p-2 border rounded"
+                value={selected}
+                onChange={(e) => setSelected(e.target.value)}
+            >
+                {categories.map(c => (
+                    <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+            </select>
+
+            <iframe
+            src={`"https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}"`}
+            style={{ width: "100%", height: "1000px", border: "none" }}
+            title="NYC Crime Map"
+            />
         </div>
     )
 }

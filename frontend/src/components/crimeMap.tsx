@@ -1,5 +1,3 @@
-
-
 const CrimeMap = () => {
   return (
     <iframe

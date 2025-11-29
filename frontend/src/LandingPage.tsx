@@ -42,11 +42,12 @@ export default function LandingPage() {
 
                 ))}
             </div>
+            <div className="animate-bounce text-2xl text-red-500">Tailwind Test</div>
             
             <div className="absolute bottom-6 right-6">
                 <button 
                     onClick={() => setDark(!dark)}
-                    className='rounded-md border-2 border-black w-[140px] h-[50px] transition-all hover:scale-110 hover:animate-pulseGlow hover:text-xl bg-black dark:bg-white'
+                    className='rounded-md border-2 border-black w-[140px] h-[50px] transition-all hover:scale-110 hover:animate-pulseGlow hover:text-xl bg-black dark:bg-white relative'
                 >
                     <div className='w-full h-full flex items-center justify-center text-white dark:text-black'>
                         {dark ? "Light Mode" : "Dark Mode"}
