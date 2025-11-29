@@ -4,12 +4,12 @@ const categories = [
     { label: "Assault", value: "ASSAULT" },
     { label: "Burglary", value: "BURGLARY" },
     { label: "Drugs", value: "DRUGS" },
-    { label: "Harassment", value: "HARRASSMENT" },
+    { label: "Harassment", value: "HARASSMENT" },
     { label: "Robbery", value: "ROBBERY" },
-    { label: "Shooting", value: "SHOOTING" },
+    { label: "Shootings", value: "SHOOTINGS" },
     { label: "Theft", value: "THEFT" },
     { label: "Vandalism", value: "VANDALISM" },
-    { label: "Vehicle Theft", value: "VEHICLE_THEFT" },
+    { label: "Vehicle Theft", value: "VEHICLE THEFT" },
 ]
     
 export default function Maps() {
@@ -27,7 +27,7 @@ export default function Maps() {
                 {categories.map(c => (
                     <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
-            </select>
+        </select>
 
             <iframe
             src={`https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}`}
