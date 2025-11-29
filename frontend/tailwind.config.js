@@ -9,7 +9,15 @@ export default {
         extend: {
             keyframes: {
                 police: {
-                    '0% , 100%' : {
+                    '0%' : {
+                        color: '#ff0000',
+                        textShadow:'0 0 15px #ff0000',
+                    },
+                    '50%' : {
+                        color: '#0000ff',
+                        textShadow:'0 0 15px #0000ff',
+                    },
+                    '100%' : {
                         color: '#ff0000',
                         textShadow:'0 0 15px #ff0000',
                     },
