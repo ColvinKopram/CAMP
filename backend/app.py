@@ -47,7 +47,7 @@ except Exception as e:
 games = {}
 
 # Config
-GOOGLE_MAPS_API_KEY = "AIzaSyAtX-iZgPCjwV8cPFKYRLcbVPz0hDrSBSE"  # Replace with your API key  # Replace with your API key
+GOOGLE_MAPS_API_KEY = None  # Replace with your API key  # Replace with your API key
 MAX_ROUNDS = 3
 
 # Crime type keywords (from your friend's code)
