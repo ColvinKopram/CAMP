@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY backend/sample_df_50k.csv /app/sample_df_50k.csv
 COPY backend/nyc_nta_2020.geojson /app/nyc_nta_2020.geojson
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
+COPY backend/ .
+
 ENV PORT=8080
 CMD gunicorn -b 0.0.0.0:8080 main:app
