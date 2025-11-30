@@ -1,15 +1,15 @@
 import { useState } from "react"
 
 const categories = [
-    { label: "Assault", value: "ASSAULT" },
-    { label: "Burglary", value: "BURGLARY" },
-    { label: "Drugs", value: "DRUGS" },
-    { label: "Harassment", value: "HARASSMENT" },
-    { label: "Robbery", value: "ROBBERY" },
-    { label: "Shootings", value: "SHOOTINGS" },
-    { label: "Theft", value: "THEFT" },
-    { label: "Vandalism", value: "VANDALISM" },
-    { label: "Vehicle Theft", value: "VEHICLE THEFT" },
+    { label: "ASSAULT", value: "ASSAULT" },
+    { label: "BURGLARY", value: "BURGLARY" },
+    { label: "DRUGS", value: "DRUGS" },
+    { label: "HARASSMENT", value: "HARASSMENT" },
+    { label: "ROBBERY", value: "ROBBERY" },
+    { label: "SHOOTINGS", value: "SHOOTINGS" },
+    { label: "THEFT", value: "THEFT" },
+    { label: "VANDALISM", value: "VANDALISM" },
+    { label: "VEHICLE THEFT", value: "VEHICLE THEFT" },
 ]
     
 export default function Maps() {
@@ -27,13 +27,14 @@ export default function Maps() {
                 {categories.map(c => (
                     <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
-        </select>
+            </select>
 
-            <iframe
-            src={`https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}`}
-            style={{ width: "100%", height: "1000px", border: "none" }}
-            title="NYC Crime Map"
-            />
+                <iframe
+                    src={`https://camp-service-353447914077.us-east4.run.app/maps/heatmap?category=${selected}`}
+                    style={{ width: "100%", height: "1000px", border: "none" }}
+                    title="NYC Crime Map"
+                />
+
         </div>
     )
 }

@@ -12,6 +12,11 @@ import os
 
 app = Flask(__name__)
 CORS(app)  # allows React to fetch from different port
+@app.after_request
+def allow_iframe(response):
+    response.headers["X-Frame-Options"] = "ALLOWALL"
+    return response
+
 
 file_location = os.path.join(os.path.dirname(__file__), "sample_df_50k.csv")
 df = pd.read_csv(file_location)
