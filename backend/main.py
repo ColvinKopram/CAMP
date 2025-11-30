@@ -81,7 +81,7 @@ for cat, subset in precomputed_categories.items():
 
     shapes_with_counts = shapes_gdf.merge(counts, on="NTA2020", how="left").fillna(0)
 
-    m = folium.Map(location=[40.7128, -74.0060], zoom_start=11, tiles="cartodbpositron")
+    m = folium.Map(location=[40.7128, -74.0060], zoom_start=11, tiles="CartoDB dark_matter")
     folium.Choropleth(
         geo_data=shapes_with_counts,
         data=shapes_with_counts,
@@ -130,7 +130,7 @@ for cat, subset in precomputed_categories.items():
     """
     m.get_root().html.add_child(Element(title_html))
 
-    choropleth_maps[cat] = m._repr_html_()
+    choropleth_maps[cat] = m.get_root().render()
 
 @app.route("/")
 def default_map():
@@ -147,6 +147,69 @@ def crime_heatmap():
     
     return choropleth_maps[category]
 
+def make_crime_heatmap(
+    df_subset,
+    shapes_gdf,
+    center=(40.7128, -74.0060),
+    zoom_start=10,
+    map_title="NYC Crime Heatmap",
+    subtitle="Neighborhoods colored by number of incidents",
+    legend_name="Number of incidents",
+):
+    sub = df_subset.dropna(subset=["Latitude", "Longitude"]).copy()
+    gdf_points = gpd.GeoDataFrame(
+        sub,
+        geometry=[Point(xy) for xy in zip(sub["Longitude"], sub["Latitude"])],
+        crs="EPSG:4326",
+    )
+    joined = gpd.sjoin(gdf_points, shapes_gdf, how="inner", predicate="within")
+    neigh_counts = joined.groupby("NTAName").size().reset_index(name="incident_count")
+    shapes_plot = shapes_gdf.merge(neigh_counts, on="NTAName", how="left")
+
+    m = Map(location=center, zoom_start=zoom_start, tiles="CartoDB dark_matter")
+
+    Choropleth(
+        geo_data=shapes_plot,
+        data=shapes_plot,
+        columns=["NTAName", "incident_count"],
+        key_on="feature.properties.NTAName",
+        fill_color="YlOrRd",
+        fill_opacity=0.8,
+        line_opacity=0.3,
+        nan_fill_color="gray",
+        legend_name=legend_name,
+    ).add_to(m)
+
+    GeoJson(
+        shapes_plot,
+        style_function=lambda x: {"fillColor": "transparent", "color": "transparent", "weight": 0},
+        tooltip=GeoJsonTooltip(
+            fields=["NTAName", "incident_count"],
+            aliases=["Neighborhood", "Incidents"],
+            localize=True,
+            sticky=True,
+        ),
+    ).add_to(m)
+
+    title_html = f"""
+    <div style="
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 6px 10px;
+        border-radius: 4px;
+        color: white;
+        font-size: 14px;
+        text-align: center;
+    ">
+        <b>{map_title}</b><br>{subtitle}
+    </div>
+    """
+    m.get_root().html.add_child(Element(title_html))
+    return m
 
 if __name__ == "__main__":
     app.run(debug=True)
