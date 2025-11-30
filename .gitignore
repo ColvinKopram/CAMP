@@ -16,3 +16,5 @@ build/
 
 #including the csv
 !backend/sample_df_50k.csv
+!backend/nyc_nta_2020.geojson
+!backend/requirements.txt
