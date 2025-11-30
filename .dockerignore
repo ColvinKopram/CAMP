@@ -1,0 +1,5 @@
+__pycache__
+*.log
+# DO NOT exclude these:
+!backend/sample_df_50k.csv
+!backend/nyc_nta_2020.geojson

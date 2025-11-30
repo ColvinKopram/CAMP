@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     libgeos-dev \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY requirements.txt .
+COPY backend/requirements.txt .
 COPY backend/sample_df_50k.csv /app/sample_df_50k.csv
 COPY backend/nyc_nta_2020.geojson /app/nyc_nta_2020.geojson
 RUN pip install --no-cache-dir -r requirements.txt
