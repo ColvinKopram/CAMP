@@ -67,7 +67,7 @@ const CrimeGeoGuesser = () => {
     socket.onmessage = (event) => {
       try {
         const message = event.data;
-        console.log('Received raw message:', message);
+        console.log('Received raw message: message') // message);
         if (message.startsWith('42')) {
           const jsonStr = message.substring(2);
           const [eventName, data] = JSON.parse(jsonStr);
@@ -75,13 +75,13 @@ const CrimeGeoGuesser = () => {
         } else if (message.startsWith('0')) {
           console.log('SocketIO handshake complete - NOW CONNECTED');
           setConnected(true);
-          console.log('Joining default namespace...');
+          //console.log('Joining default namespace...');
           socket.send('40');
         } else if (message.startsWith('2')) {
-          console.log('Received ping, sending pong');
+          //console.log('Received ping, sending pong');
           socket.send('3');
         } else if (message.startsWith('40')) {
-          console.log('Connected to namespace - READY TO SEND EVENTS');
+          //console.log('Connected to namespace - READY TO SEND EVENTS');
           setConnected(true);
         }
       } catch (error) {
@@ -110,10 +110,10 @@ const CrimeGeoGuesser = () => {
   }, []);
 
   const sendSocketEvent = (eventName, data) => {
-    console.log('Attempting to send event:', eventName, data);
+    //console.log('Attempting to send event:', eventName, data);
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       const message = `42${JSON.stringify([eventName, data])}`;
-      console.log('Sending message:', message);
+      //console.log('Sending message:', message);
       wsRef.current.send(message);
     } else {
       console.error('WebSocket not ready. State:', wsRef.current?.readyState);
@@ -122,7 +122,7 @@ const CrimeGeoGuesser = () => {
   };
 
   const handleSocketEvent = (eventName, data) => {
-    console.log('Received event:', eventName, data);
+    //console.log('Received event:', eventName, data);
 
     switch(eventName) {
       case 'connected':
@@ -216,7 +216,7 @@ const CrimeGeoGuesser = () => {
                 const actualLng = data.actual_location.longitude;
                 const isCurrentPlayer = result.player_id === playerId;
                 
-                console.log('Adding marker for:', result.player_name, 'isCurrentPlayer:', isCurrentPlayer);
+                //console.log('Adding marker for:', result.player_name, 'isCurrentPlayer:', isCurrentPlayer);
                 
                 L.polyline(
                   [[guessLat, guessLng], [actualLat, actualLng]],
@@ -229,7 +229,7 @@ const CrimeGeoGuesser = () => {
                 ).addTo(mapInstanceRef.current);
                 
                 const markerColor = isCurrentPlayer ? 'blue' : 'green';
-                console.log('Marker color:', markerColor, 'for', result.player_name);
+                //console.log('Marker color:', markerColor, 'for', result.player_name);
                 
                 const guessMarker = L.marker([guessLat, guessLng], {
                   icon: L.icon({
@@ -245,7 +245,7 @@ const CrimeGeoGuesser = () => {
                 guessMarker.bindPopup(`${result.player_name}'s guess`);
                 
                 if (isCurrentPlayer) {
-                  console.log('Adding YOU label for current player');
+                  //console.log('Adding YOU label for current player');
                   const labelMarker = L.marker([guessLat, guessLng], {
                     icon: L.divIcon({
                       className: 'you-label',
@@ -254,7 +254,7 @@ const CrimeGeoGuesser = () => {
                       iconAnchor: [30, 60]
                     })
                   }).addTo(mapInstanceRef.current);
-                  console.log('YOU label added');
+                  //console.log('YOU label added');
                 }
               });
               
@@ -417,7 +417,7 @@ const CrimeGeoGuesser = () => {
         })
       }).addTo(mapInstanceRef.current);
       
-      console.log('✓ Added YOU label to locked marker');
+      //console.log('✓ Added YOU label to locked marker');
     }
     
     sendSocketEvent('submit_guess', {

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css'
 import LandingPage from './pages/LandingPage'
 import CrimeGeoGuesser from './pages/CrimeGeoGuesser'
+import Maps from './pages/Maps'
 function App() {  
 
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/crime_guesser" element={<CrimeGeoGuesser />} />
+        <Route path="/maps" element={<Maps />} />
       </Routes>
     </Router>
   )

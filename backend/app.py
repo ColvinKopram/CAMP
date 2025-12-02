@@ -1,12 +1,15 @@
 from flask import Flask, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_cors import CORS
+from crime_data import df
 import pandas as pd
 import random
 import string
 from math import radians, cos, sin, asin, sqrt
 import time
 import os
+from pathlib import Path
+from flask import send_file
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key"
@@ -21,27 +24,42 @@ socketio = SocketIO(
     ping_interval=25,
 )
 
-CHUNKS_FOLDER = r"C:\Users\Mohammed Al-Muqsit\Desktop\Repo\ctpFinal\backend\csv_chunks"
-try:
-    # Get a sorted list of all CSV chunk files
-    chunk_files = sorted(
-        [
-            os.path.join(CHUNKS_FOLDER, f)
-            for f in os.listdir(CHUNKS_FOLDER)
-            if f.endswith(".csv")
-        ]
-    )
+MAPS_FOLDER = Path("maps")
 
-    # Read all chunks and concatenate
-    df_list = [pd.read_csv(f) for f in chunk_files]
-    df = pd.concat(
-        df_list, ignore_index=True
-    )  # ignore_index=True resets the row numbers
-    print(f"✓ Loaded {len(df)} crime records from {len(df_list)} chunks")
 
-except Exception as e:
-    print(f"✗ ERROR loading CSV chunks: {e}")
-    df = None
+@app.route("/maps/heatmap")
+def heatmap_endpoint():
+    """Serve pre-generated crime heatmaps"""
+    category = request.args.get("category", "SHOOTINGS").upper()
+    html_file = MAPS_FOLDER / f"{category.lower()}.html"
+
+    if not html_file.exists():
+        return {"error": "Map not found"}, 404
+
+    return send_file(html_file)
+
+
+# CHUNKS_FOLDER = r"C:\Users\Mohammed Al-Muqsit\Desktop\Repo\ctpFinal\backend\csv_chunks"
+# try:
+#     # Get a sorted list of all CSV chunk files
+#     chunk_files = sorted(
+#         [
+#             os.path.join(CHUNKS_FOLDER, f)
+#             for f in os.listdir(CHUNKS_FOLDER)
+#             if f.endswith(".csv")
+#         ]
+#     )
+
+#     # Read all chunks and concatenate
+#     df_list = [pd.read_csv(f) for f in chunk_files]
+#     df = pd.concat(
+#         df_list, ignore_index=True
+#     )  # ignore_index=True resets the row numbers
+#     print(f"✓ Loaded {len(df)} crime records from {len(df_list)} chunks")
+
+# except Exception as e:
+#     print(f"✗ ERROR loading CSV chunks: {e}")
+#     df = None
 
 # Game state
 games = {}
